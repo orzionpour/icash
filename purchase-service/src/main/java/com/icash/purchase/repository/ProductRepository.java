@@ -13,12 +13,10 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     List<Product> findAllByNameIn(List<String> names);
 
     @Query(value = """
-    SELECT p.id AS id, p.name AS name, p.price AS price, COUNT(*) AS salesCount
-    FROM product p
-    JOIN purchase_products pp ON p.id = pp.product_id
-    GROUP BY p.id, p.name, p.price
-    ORDER BY salesCount DESC
-    LIMIT :limit
-    """, nativeQuery = true)
+                SELECT name, sales_count
+                FROM product_sales_rank
+                WHERE rnk <= 3
+                ORDER BY sales_count DESC;
+            """, nativeQuery = true)
     List<ProductSalesView> findTopSellingProducts(@Param("limit") int limit);
 }
