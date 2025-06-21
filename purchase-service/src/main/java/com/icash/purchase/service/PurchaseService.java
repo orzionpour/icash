@@ -16,7 +16,6 @@ import com.icash.purchase.entity.User;
 import com.icash.purchase.repository.ProductRepository;
 import com.icash.purchase.repository.PurchaseProductRepository;
 import com.icash.purchase.repository.PurchaseRepository;
-import com.icash.purchase.repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -27,20 +26,21 @@ import lombok.RequiredArgsConstructor;
 public class PurchaseService {
 
     private final PurchaseRepository purchaseRepository;
-    private final ProductRepository productRepository;
+    private final ProductService productService;
     private final PurchaseProductRepository purchaseProductRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     /**
      * Registers a purchase and links products to it.
+     * 
      * @param request the purchase request DTO
      * @return the saved Purchase entity
      */
     @Transactional
     public Purchase registerPurchase(PurchaseRequest request) {
         UUID userId = resolveUserId(request.getUserId());
-        List<Product> products = fetchAndValidateProducts(request.getProducts());
-        double totalAmount = calculateTotalAmount(products);
+        List<Product> products = productService.getByNames(request.getProducts());
+        double totalAmount = calculatePurchaseTotalAmount(products);
 
         Purchase purchase = new Purchase();
         purchase.setSupermarketId(request.getSupermarketId());
@@ -51,8 +51,8 @@ public class PurchaseService {
         Purchase savedPurchase = purchaseRepository.save(purchase);
 
         List<PurchaseProduct> links = products.stream()
-            .map(product -> new PurchaseProduct(savedPurchase.getId(), product.getId()))
-            .toList();
+                .map(product -> new PurchaseProduct(savedPurchase.getId(), product.getId()))
+                .toList();
 
         purchaseProductRepository.saveAll(links);
 
@@ -61,26 +61,14 @@ public class PurchaseService {
 
     private UUID resolveUserId(UUID userId) {
         if (userId == null) {
-            User user = new User();
-            User savedUser = userRepository.save(user);
-            return savedUser.getId();
-        } else if (!userRepository.existsById(userId)) {
+            return userService.createUser().getId();
+        } else if (!userService.userExists(userId)) {
             throw new EntityNotFoundException("User with ID " + userId + " does not exist.");
         }
         return userId;
     }
 
-    private List<Product> fetchAndValidateProducts(List<String> productNames) {
-        List<Product> products = productRepository.findAllByNameIn(productNames);
-        Set<String> foundNames = products.stream().map(Product::getName).collect(Collectors.toSet());
-        List<String> missingNames = productNames.stream().filter(name -> !foundNames.contains(name)).toList();
-        if (!missingNames.isEmpty()) {
-            throw new IllegalArgumentException("Products not found: " + missingNames);
-        }
-        return products;
-    }
-
-    private double calculateTotalAmount(List<Product> products) {
+    private double calculatePurchaseTotalAmount(List<Product> products) {
         return products.stream().mapToDouble(Product::getPrice).sum();
     }
 }
