@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.icash.purchase.dto.ProductSalesView;
 import com.icash.purchase.repository.ProductRepository;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -20,10 +21,10 @@ public class ProductController {
 
     private final ProductRepository productRepository;
 
+    @Operation(hidden = true)
     @GetMapping("/top-sellers")
     public ResponseEntity<List<ProductSalesView>> getTopSellingProducts(
-        @RequestParam(defaultValue = "3") int limit
-    ) {
+            @RequestParam(defaultValue = "3") int limit) {
         List<ProductSalesView> topProducts = productRepository.findTopSellingProducts(limit);
         return ResponseEntity.ok(topProducts);
     }

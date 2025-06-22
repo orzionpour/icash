@@ -10,6 +10,17 @@ docker-compose up --build
 
 This spins up PostgreSQL on port 5432, `purchase-service` on port 8081 and `admin-service` on port 8082. Data will be loaded automatically via Flyway when the purchase service starts.
 
+### APIs
+For your convenience, you can use the following Swagger URLs for interacting with the services endpoint: 
+
+Purchase-Service: http://localhost:8081/swagger-ui/index.html#/ <br>
+    [-] Adding a new purchase 
+
+Admin-Service: http://localhost:8082/swagger-ui/index.html#/ <br>
+    [-] Get user count <br>
+    [-] Get loyal users <br>
+    [-] Get top selling products <br> 
+
 ### Architecture
 ![image](System-Architecture.png)
 

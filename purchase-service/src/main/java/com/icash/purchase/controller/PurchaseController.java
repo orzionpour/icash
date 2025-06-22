@@ -11,6 +11,7 @@ import com.icash.purchase.dto.PurchaseRequest;
 import com.icash.purchase.entity.Purchase;
 import com.icash.purchase.service.PurchaseService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -24,7 +25,7 @@ public class PurchaseController {
     public ResponseEntity<Purchase> registerPurchase(@RequestBody PurchaseRequest request) {
         Purchase purchase = purchaseService.registerPurchase(request);
         return ResponseEntity
-        .status(HttpStatus.CREATED)
-        .body(purchase);
+                .status(HttpStatus.CREATED)
+                .body(purchase);
     }
 }

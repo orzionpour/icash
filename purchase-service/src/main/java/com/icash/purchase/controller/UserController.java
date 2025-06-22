@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.icash.purchase.entity.User;
 import com.icash.purchase.repository.UserRepository;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
     private final UserRepository userRepository;
 
+    @Operation(hidden = true)
     @GetMapping("/count")
     public ResponseEntity<Long> countUsers() {
         Long userCounter = userRepository.count();
@@ -29,10 +31,10 @@ public class UserController {
                 .body(userCounter);
     }
 
+    @Operation(hidden = true)
     @GetMapping("/frequent-buyers")
     public ResponseEntity<List<User>> getUsersWithMinPurchases(
-        @RequestParam(defaultValue = "3") int minPurchases
-    ) {
+            @RequestParam(defaultValue = "3") int minPurchases) {
         List<User> users = userRepository.findUsersWithAtLeastNPurchases(minPurchases);
         return ResponseEntity.ok(users);
     }
